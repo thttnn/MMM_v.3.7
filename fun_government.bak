@@ -1,0 +1,182 @@
+/*****PUBLIC SECTOR*****/
+
+EQUATION("Government_Max_Expenses")
+/*
+Maximum Government expenses imposed by the fiscal rule.
+Fiscal rules can be two types: primary surplus target or expenses ceiling (or both).
+Depend on the policy parameter.
+*/
+
+v[0]=V("begin_surplus_target_rule");                           //define when surplus target rule begins
+v[1]=V("begin_expenses_ceiling_rule");                         //define when expenses ceiling begins
+v[2]=V("government_period");
+v[3]= fmod((double) t,v[2]);                                   //divides the time period by government adjustment period (adjust annualy)
+if(v[3]==0)                                                    //if the rest of the division is zero (adjust maximum expenses)
+{                                                              //adjust fiscal rules maximum expenses
+		v[4]=VL("GDP", 1);                                          	//GDP lagged 1
+		v[5]=VL("GDP", v[2]);                                       	//GDP lagged government period (4)
+		v[6]=V("government_expectations");                              //government expectation parameter 
+		if(v[5]!=0)                                                   	//if last semiannual GDP is not zero
+			v[7]=1+v[6]*(v[4]-v[5])/v[5];                               //expected growth of gdp
+		else                                                          	//if last semiannual GDP is zero
+			v[7]=1;                                                     //use one for the expected growth
+		v[8]=VL("Total_Taxes",1);                                     	//total taxes in the last period
+		v[9]=V("government_surplus_rate_target");                     	//government surplus target rate
+		v[10]=v[7]*(v[8]-(v[8]*v[9]));                                 	//maximum expenses will be total taxes multiplyed by expected growth minus the surplus target
+	
+		v[11]=VL("Government_Expenses", 1);                             //last period government expeneses
+		v[12]=VL("Consumer_Price_Index",1);                             //consumer price index lagged 1
+		v[13]=VL("Consumer_Price_Index", v[2]);                         //consumer price index lagged government period (4)
+		if(v[13]!=0)                                                    //if consumer price index is not zero
+			v[14]=1+((v[12]-v[13])/v[13]);                              //calculate inflation
+		else                                                            //if consumer price index is zero
+			v[14]=1;												    //use 1
+		v[15]=v[11]*v[14];												//maximum expenses if ceiling rule is active
+	
+	if((t>=v[0]&&v[0]!=0)&&(t>=v[1]&&v[1]!=0))                 //if both rules are active
+		v[16]=min(v[10],v[15]);                                //effective maximum is the minimum between both rules
+	else if ((t>=v[0]&&v[0]!=0)&&(t<v[1]||v[1]==0))             //if only surplus target is active
+		v[16]=v[10];
+	else if ((t>=v[1]&&v[1]!=0)&&(t<v[0]||v[0]==0))             //if only expenses ceiling is active
+		v[16]=v[15];
+	else													   //if none of the rules are active
+		v[16]=-1; 											   //no maximum expenses
+}
+else	                                                       //if it is not adjustment period
+	v[16]=CURRENT;											   //use last period's maximum
+RESULT(v[16])
+	
+
+EQUATION("Government_Wages")
+/*
+Priority expenses.
+If there are no maximum expenses, it is adjusted by average productivity growth and inflation.
+*/
+
+v[0]=V("government_period");
+v[1]= fmod((double) t,v[0]);                                   //divides the time period by government adjustment period (adjust annualy)
+if(v[1]==0)                                                    //if the rest of the division is zero (adjust government wages)
+{
+	v[2]=VL("Avg_Productivity",1);                             //avg productivity lagged 1
+	v[3]=VL("Avg_Productivity", v[2]);                         //avg productivity lagged government period (4)
+	if(v[3]!=0)                                                //if productivity is not zero
+		v[4]=1+((v[2]-v[3])/v[3]);                             //calculate inflation
+	else                                                       //if productivity is zero
+		v[4]=1;												   //use 1
+	v[5]=VL("Consumer_Price_Index",1);                         //consumer price index lagged 1
+	v[6]=VL("Consumer_Price_Index", v[2]);                     //consumer price index lagged government period (4)
+	if(v[6]!=0)                                                //if consumer price index is not zero
+		v[7]=1+((v[5]-v[6])/v[6]);                             //calculate inflation
+	else                                                       //if consumer price index is zero
+		v[7]=1;												   //use 1
+	v[8]=CURRENT*(1+v[4]+v[7]);                                //desired adjusted government wages with no restriction
+	v[9]=V("Government_Max_Expenses");                         //check government max expenses
+	if(v[9]!=-1)                                              //if there is a maximum expenses
+		v[10]=min(v[8],v[9]);                                  //use the minimum between desired expenses and max expenses
+	else                                                       //if there is no maximum expenses
+		v[10]=v[8];                                            //use desired
+}
+else                                                           //if it is not adjustment period
+	v[10]=CURRENT;                                             //use last period's
+RESULT(v[10])
+
+
+EQUATION("Total_Income_Taxes")
+/*
+Stores the value of the function
+*/
+	v[0]=SUM("Class_Income_Tax");
+RESULT(v[0])
+
+
+EQUATION("Total_Indirect_Taxes")
+/*
+Stores the value of the function
+*/
+	v[0]=SUM("Sector_Indirect_Tax");
+RESULT(v[0])
+
+
+EQUATION("Total_Taxes")
+/*
+Sum of income and indirect taxes
+*/
+	v[0]=V("Total_Income_Taxes");
+	v[1]=V("Total_Indirect_Taxes");
+	v[2]=v[0]+v[1];
+RESULT(v[2])
+
+
+EQUATION("Government_Primary_Surplus")
+/*
+Total Taxes minus Government Expenses
+*/
+	v[0]=V("Government_Wages");
+	v[1]=V("Total_Taxes");
+	v[2]=v[1]-v[0];
+RESULT(v[2])
+
+
+EQUATION("Government_Interest_Payment")
+/*
+Defined as the government stock of public debt in the last period multipyed by the interest rate
+*/
+	v[0]=VL("Government_Debt",1);
+	v[1]=V("Basic_Interest_Rate");
+	v[2]=v[0]*v[1];
+RESULT(v[2])
+
+
+EQUATION("Government_Deficit")
+/*
+Government expenses minus taxes plus interest payments
+*/
+	v[0]=V("Government_Wages");
+	v[1]=V("Total_Taxes");
+	v[2]=V("Government_Interest_Payment");
+	v[3]=v[0]-v[1]+v[2];
+RESULT(v[3])
+
+
+EQUATION("Government_Debt")
+/*
+Defined as the stock of debt in the last period plus current government deficit
+*/
+	v[0]=VL("Government_Debt",1);
+	v[1]=V("Government_Deficit");
+	v[2]=max(0,v[0]+v[1]);
+RESULT(v[2])
+
+
+EQUATION("Government_Debt_GDP_Ratio")
+/*
+Public debt over annual GDP
+*/
+	v[0]=V("annual_period");
+	v[1]=0;
+	for (v[2]=0; v[2]<=v[0]; v[2]=v[2]+1)
+		{
+		v[3]=VL("GDP",v[2]);
+		v[1]=v[1]+v[3];
+		}
+	v[4]=V("Government_Debt");
+	if (v[1]!=0)
+		v[5]=v[4]/v[1];
+	else	
+		v[5]=0;
+RESULT(v[5])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
