@@ -141,6 +141,13 @@ v[149]=v[112]*v[141] + v[113]*v[142] + v[114]*v[143];											//total imports
 v[150]=v[146]+v[147]+v[145];																	//GDP
 v[151]=(v[141]*v[101]+v[142]*v[102]+v[143]*v[100])/(v[141]+v[142]+v[143]);						//initial price index
 
+v[152]=V("initial_firm_desired_debt_rate");
+v[153]=V("initial_firm_liquidity_preference");
+v[154]=V("initial_extra_debt_payment");
+v[155]=V("initial_class_desired_debt_rate");
+v[156]=V("initial_class_liquidity_preference");
+v[157]=V("tech_opportunity");
+
 //Begin Writting Macro Variables
 CYCLE(cur, "MACRO")
 {
@@ -179,6 +186,8 @@ CYCLE(cur, "CLASSES")
 			WRITELLS(cur, "Class_Avg_Nominal_Income", v[164], 0, 1);
 			WRITELLS(cur, "Class_Avg_Real_Income", (v[164]/v[101]), 0, 1);
 			WRITELLS(cur, "Class_Real_Autonomous_Consumption", v[165], 0, 1);         			//write class' autonomous consumption
+			WRITELLS(cur, "Class_Liquidity_Preference", v[156], 0, 1);
+			WRITELLS(cur, "Class_Desired_Debt_Rate", v[155], 0, 1);
 			WRITELLS(cur, "Class_Debt_Rate", 0, 0, 1);                              			//0, no debt initially
 			WRITELLS(cur, "Class_Stock_Deposits", 0, 0, 1);
 			WRITES(cur, "id_class_bank", v[166]);
@@ -190,12 +199,23 @@ cur2 = SEARCH("EXTERNAL_SECTOR");																//search the external sector
 WRITELLS(cur2, "External_Income", v[150], 0, 1);												//writes initial external income equal to domestic GDP
 
 //Begin Writing Government Variables
+v[168]=V("switch_government_composition");
+v[169]=V("government_surplus_rate_target");
 cur = SEARCH("GOVERNMENT");																		//initial total taxes is calculated in the demand calibration based only on parameters
 WRITELLS(cur,"Total_Taxes", v[144], 0, 1);														//write initial total taxes
 WRITELLS(cur,"Government_Max_Expenses", v[144], 0, 1);        									//initial max government expenses equals total taxes calculated in the calibration
-WRITELLS(cur,"Government_Wages", v[144], 0, 1);		            								//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity		
+WRITELLS(cur,"Government_Effective_Expenses", v[144], 0, 1);		            				//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity		
+if (v[168]==2)	
+	WRITELLS(cur,"Government_Desired_Wages", 0.7*v[144], 0, 1);		            				    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity
+else
+	WRITELLS(cur,"Government_Desired_Wages", v[144], 0, 1);		            				    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity
+WRITELLS(cur,"Government_Desired_Consumption", 0.1*v[144], 0, 1);		            			//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity	
+WRITELLS(cur,"Government_Desired_Investment", 0.1*v[144], 0, 1);		            			//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity	
+WRITELLS(cur,"Government_Desired_Inputs", 0.1*v[144], 0, 1);		            			    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity	
+WRITELLS(cur,"Government_Surplus_Rate_Target", v[169], 0, 1);
 for (i=1 ; i<=v[4] ; i++)		              													//for (government_period) lags	
 	WRITELLS(cur,"Government_Debt", 0, 0, i);                  									//no debt initially																	//base interest rate parameter
+WRITELLS(cur,"Government_Debt_GDP_Ratio", 0, 0, 1);
 
 //Begin Writing Sector Variables
 CYCLE(cur, "SECTORS")
@@ -254,6 +274,7 @@ CYCLE(cur, "SECTORS")
 		WRITELLS(cur, "Sector_External_Price", v[204], 0, 1);                               	//Foreign_Price equals foreign_price initial
 		WRITELLS(cur, "Sector_Avg_Productivity", v[205], 0,  1);               	 				//If all firms are the same, Avg Productivity will be the initial productivivity for all firms
 		WRITELLS(cur, "Sector_Max_Productivity", v[205], 0,  1);                      			//If all capital goods have the same productivity, Max_Productivity equals productivity_initial 
+		WRITELLS(cur, "Sector_Tech_Opportunity", v[157], 0,  1);
 		WRITELLS(cur, "Sector_Max_Quality", 1, 0,  1);
 		WRITELLS(cur, "Sector_Inventories", (v[200]*v[217]), 0, 1);                  			//Firms operate with desired level of inventories, thus, Current stock of inventories is the desired level times effective production
 		if(v[202]==1)
@@ -316,6 +337,9 @@ CYCLE(cur, "SECTORS")
 		WRITELLS(cur1, "Firm_Stock_Deposits", 0, 0, 1);											//no financial assets initially
 	  	WRITELLS(cur1, "Firm_Stock_Loans", 0, 0, 1);                                    		//no debt initially
 	  	WRITELLS(cur1, "Firm_Avg_Debt_Rate", 0, 0, 1);                       					//no debt initially
+	  	WRITELLS(cur1, "Firm_Desired_Debt_Rate", v[152], 0, 1);                       					//no debt initially
+	  	WRITELLS(cur1, "Firm_Liquidity_Preference", v[153], 0, 1);                       					//no debt initially
+	  	WRITELLS(cur1, "Firm_Extra_Debt_Payment", v[154], 0, 1);                       					//no debt initially
 		
 	  		//Begin writting Capital Goods Variables and parameters
 	  		cur2=SEARCHS(cur1, "CAPITALS");														//search the first and only instance of capital below firms

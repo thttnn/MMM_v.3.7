@@ -200,22 +200,22 @@ WRITELLS(cur2, "External_Income", v[150], 0, 1);												//writes initial ext
 
 //Begin Writing Government Variables
 v[168]=V("switch_government_composition");
+v[169]=V("government_surplus_rate_target");
 cur = SEARCH("GOVERNMENT");																		//initial total taxes is calculated in the demand calibration based only on parameters
 WRITELLS(cur,"Total_Taxes", v[144], 0, 1);														//write initial total taxes
 WRITELLS(cur,"Government_Max_Expenses", v[144], 0, 1);        									//initial max government expenses equals total taxes calculated in the calibration
 WRITELLS(cur,"Government_Effective_Expenses", v[144], 0, 1);		            				//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity		
-if(v[168]==3)
-	WRITELLS(cur,"Government_Desired_Wages", 0.65*v[144], 0, 1);		            				    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity
-else if (v[168]==2)	
+if (v[168]==2)	
 	WRITELLS(cur,"Government_Desired_Wages", 0.7*v[144], 0, 1);		            				    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity
 else
 	WRITELLS(cur,"Government_Desired_Wages", v[144], 0, 1);		            				    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity
 WRITELLS(cur,"Government_Desired_Consumption", 0.1*v[144], 0, 1);		            			//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity	
 WRITELLS(cur,"Government_Desired_Investment", 0.1*v[144], 0, 1);		            			//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity	
 WRITELLS(cur,"Government_Desired_Inputs", 0.1*v[144], 0, 1);		            			    //initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity	
-WRITELLS(cur,"Government_Desired_RND", 0.05*v[144], 0, 1);		            			//initial government expenses is only wages, which thereafter will grow depending on inflation and average productivity				
+WRITELLS(cur,"Government_Surplus_Rate_Target", v[169], 0, 1);
 for (i=1 ; i<=v[4] ; i++)		              													//for (government_period) lags	
 	WRITELLS(cur,"Government_Debt", 0, 0, i);                  									//no debt initially																	//base interest rate parameter
+WRITELLS(cur,"Government_Debt_GDP_Ratio", 0, 0, 1);
 
 //Begin Writing Sector Variables
 CYCLE(cur, "SECTORS")
@@ -274,7 +274,6 @@ CYCLE(cur, "SECTORS")
 		WRITELLS(cur, "Sector_External_Price", v[204], 0, 1);                               	//Foreign_Price equals foreign_price initial
 		WRITELLS(cur, "Sector_Avg_Productivity", v[205], 0,  1);               	 				//If all firms are the same, Avg Productivity will be the initial productivivity for all firms
 		WRITELLS(cur, "Sector_Max_Productivity", v[205], 0,  1);                      			//If all capital goods have the same productivity, Max_Productivity equals productivity_initial 
-		WRITELLS(cur, "Sector_Tech_Opportunity", v[157], 0,  1);
 		WRITELLS(cur, "Sector_Max_Quality", 1, 0,  1);
 		WRITELLS(cur, "Sector_Inventories", (v[200]*v[217]), 0, 1);                  			//Firms operate with desired level of inventories, thus, Current stock of inventories is the desired level times effective production
 		if(v[202]==1)

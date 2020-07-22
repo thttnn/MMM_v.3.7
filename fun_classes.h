@@ -500,15 +500,28 @@ taxation_structure
 2--> Wages, Profits and Interest
 3--> Wages, Profits, Interest and Wealth
 
+switch_unemployment_benefits
+0--> Distributed by wage share
+1--> Distributed to lowest income class only 
+
 */
-	v[0]=V("Total_Distributed_Profits");                   //total distributed profits
-	v[1]=V("Total_Wages");                                 //total wages
-	v[2]=V("class_profit_share");                          //profit share of each class
-	v[3]=V("class_wage_share");                            //wage share of each class
-	v[4]=V("Class_Deposits_Return");                       //interest receivment
-	v[5]=V("Government_Effective_Unemployment_Benefits");  //unemployment benefits (never taxed) 
-	v[6]=v[0]*v[2]+v[1]*v[3]+v[4]+v[5]*v[3];     		   //class' gross total income
-	
+	v[0]=V("Total_Distributed_Profits");                   			  //total distributed profits
+	v[1]=V("Total_Wages");                                			  //total wages
+	v[2]=V("class_profit_share");                          		      //profit share of each class
+	v[3]=V("class_wage_share");                            			  //wage share of each class
+	v[4]=V("Class_Deposits_Return");                                  //interest receivment
+	v[5]=V("Government_Effective_Unemployment_Benefits");             //unemployment benefits (never taxed)
+	v[13]=V("switch_unemployment_benefits"); 
+	if(v[13]==0)                                                      //if unemployment benefits are distributed by wage share
+		v[6]=v[0]*v[2]+v[1]*v[3]+v[4]+v[5]*v[3];     		          //class' gross total income
+	if(v[13]==1)                                                      //if unemployment benefits are distributed only for the lowest income class
+	{
+		v[16]=V("id_class");                                          //current object id
+		if(v[16]==3)                                              //if current object is the one with minimum income
+			v[6]=v[0]*v[2]+v[1]*v[3]+v[4]+v[5];     		          //class' gross total income, including unemployment benefits
+		else                                                          //if it is not
+			v[6]=v[0]*v[2]+v[1]*v[3]+v[4];                            //class' gross total income excluding unemployment benefits
+	} 
 	v[7]=V("taxation_structure");                          //defines taxation structure
 	v[8]=V("class_direct_tax");                            //class tax rate
 	if(v[7]==0)
@@ -519,18 +532,19 @@ taxation_structure
 		v[9]=(v[0]*v[2]+v[1]*v[3]+v[4])*v[8];              //class total tax
 	if(v[7]==3)
 	{
-		v[10]=VL("Class_Stock_Deposits",1);
-		v[11]=V("class_wealth_tax");
-		v[12]=v[10]*v[11];
+		v[10]=VL("Class_Stock_Deposits",1);                //class stock of deposits in the last period
+		v[11]=V("class_wealth_tax");                       //tax rate on stock of wealth
+		v[12]=v[10]*v[11];                                 //amount of tax on wealth
 		v[9]=(v[0]*v[2]+v[1]*v[3]+v[4])*v[8]+v[12];        //class total tax
 	}
-	WRITE("Class_Taxation",v[9]);
-	WRITE("Class_Gross_Nominal_Income",v[6]);
+	WRITE("Class_Taxation",v[9]);                          //write class taxation equation_dummy
+	WRITE("Class_Gross_Nominal_Income",v[6]);              //write class gross income equation_dummy
 RESULT(v[6]-v[9])
 
 
 EQUATION_DUMMY("Class_Taxation","Class_Nominal_Income")
 EQUATION_DUMMY("Class_Gross_Nominal_Income","Class_Nominal_Income")
+
 
 
 EQUATION("Class_Real_Income")
@@ -576,4 +590,30 @@ Degree of indebtedness, calculated by the ratio of the debt to deposits.
 	else                                              //if the sum of the fisical capital plus the financial assets is not positive
 		v[4]=1.1;                                     //debt rate is 1.1 
 RESULT(v[4])
+
+
+EQUATION("Class_Income_Share")
+/*
+Class share of nominal income
+*/
+	v[0]=V("Class_Nominal_Income");
+	v[1]=SUMS(PARENT,"Class_Nominal_Income");
+	if(v[1]!=0)
+		v[2]=v[0]/v[1];
+	else
+		v[2]=0;
+RESULT(v[2])
+
+
+EQUATION("Class_Wealth_Share")
+/*
+Class share of nominal income
+*/
+	v[0]=V("Class_Stock_Deposits");
+	v[1]=SUMS(PARENT,"Class_Stock_Deposits");
+	if(v[1]!=0)
+		v[2]=v[0]/v[1];
+	else
+		v[2]=0;
+RESULT(v[2])
 

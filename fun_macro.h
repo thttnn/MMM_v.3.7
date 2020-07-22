@@ -234,8 +234,7 @@ The total wage is calculated by the sum of the wages paid by the sectors with go
 		v[0]=v[0]+v[1];                                          	//sums up all wages of all sectors
 	}
 	v[6]=V("Government_Effective_Wages");                           //wages paid by the government
-	v[7]=V("Government_Effective_RND");                             //wages paid by government to RND
-	v[8]=v[0]+v[6]+v[7];                                            //sums up productive sectors wages with government wages
+	v[8]=v[0]+v[6];                                            //sums up productive sectors wages with government wages
 RESULT(v[8])
 
 
@@ -919,5 +918,81 @@ Aggregated average class debt rate, wheighted by the income of each class
 RESULT(v[2])
 
 
+EQUATION("Gini_Income_Class")
+/*
+Gini Index for income classes. Fixed rate.
+*/
+v[0]=COUNT("CLASSES");               //count number of income classes
+v[1]=MIN("Class_Income_Share");      //lowest income share
+v[2]=MED("Class_Income_Share");      //median income share
+v[3]=MAX("Class_Income_Share");      //high income share
+
+v[4]=1/v[0];                         //lowest class share of population
+v[5]=1/v[0];                         //mid class share of population
+v[6]=1/v[0];                         //high class share of population
+
+v[7]=v[4]*v[1]+v[5]*v[2]+v[6]*v[3]+2*v[5]*v[1]+2*v[6]*v[2]+2*v[6]*v[1];
+v[8]=0.5-(v[7]/2);
+RESULT(v[8])
+
+
+EQUATION("Gini_Wealth_Class")
+/*
+Gini Index for wealth. Fixed rate.
+*/
+v[0]=COUNT("CLASSES");               //count number of income classes
+v[1]=MIN("Class_Wealth_Share");      //lowest income share
+v[2]=MED("Class_Wealth_Share");      //median income share
+v[3]=MAX("Class_Wealth_Share");      //high income share
+
+v[4]=1/v[0];                         //lowest class share of population
+v[5]=1/v[0];                         //mid class share of population
+v[6]=1/v[0];                         //high class share of population
+
+v[7]=v[4]*v[1]+v[5]*v[2]+v[6]*v[3]+2*v[5]*v[1]+2*v[6]*v[2]+2*v[6]*v[1];
+v[8]=0.5-(v[7]/2);
+RESULT(v[8])
+
+
+EQUATION("Gini_Income_Population")
+/*
+Gini Index for income classes. Based on Population share
+*/
+v[1]=MIN("Class_Income_Share");      //lowest income share
+v[2]=MED("Class_Income_Share");      //median income share
+v[3]=MAX("Class_Income_Share");      //high income share
+
+cur1=SEARCH_CND("Class_Income_Share",v[1]);
+cur2=SEARCH_CND("Class_Income_Share",v[2]);
+cur3=SEARCH_CND("Class_Income_Share",v[3]);
+
+v[4]=VS(cur1,"class_population_share");                         //lowest class share of population
+v[5]=VS(cur2,"class_population_share");                         //mid class share of population
+v[6]=VS(cur3,"class_population_share");                         //high class share of population
+
+v[7]=v[4]*v[1]+v[5]*v[2]+v[6]*v[3]+2*v[5]*v[1]+2*v[6]*v[2]+2*v[6]*v[1];
+v[8]=0.5-(v[7]/2);
+RESULT(v[8])
+
+
+EQUATION("Gini_Wealth_Population")
+/*
+Gini Index for wealth. Fixed rate.
+*/
+v[1]=MIN("Class_Wealth_Share");      //lowest income share
+v[2]=MED("Class_Wealth_Share");      //median income share
+v[3]=MAX("Class_Wealth_Share");      //high income share
+
+cur1=SEARCH_CND("Class_Wealth_Share",v[1]);
+cur2=SEARCH_CND("Class_Wealth_Share",v[2]);
+cur3=SEARCH_CND("Class_Wealth_Share",v[3]);
+
+v[4]=VS(cur1,"class_population_share");                         //lowest class share of population
+v[5]=VS(cur2,"class_population_share");                         //mid class share of population
+v[6]=VS(cur3,"class_population_share");                         //high class share of population
+
+v[7]=v[4]*v[1]+v[5]*v[2]+v[6]*v[3]+2*v[5]*v[1]+2*v[6]*v[2]+2*v[6]*v[1];
+v[8]=0.5-(v[7]/2);
+RESULT(v[8])
 
 
