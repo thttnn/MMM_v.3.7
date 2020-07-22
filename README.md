@@ -19,7 +19,7 @@ Determines the composition and priority of government expenses, and initial dist
 
 * 0--> Government Wages(100%) [Only Public Workers]
 * 1--> Government Wages(100%) + Unemployment Benefits(0%) [Public Workers and Unemployment Benefits]
-*	2--> Government Wages(70%) + Unemployment Benefits(0%) + Government Consumption, Investment and Intermediate Demand(10% each) [Public Workers, Unemployment Benefits, and Demand to Sectors]
+* 2--> Government Wages(70%) + Unemployment Benefits(0%) + Government Consumption, Investment and Intermediate Demand(10% each) [Public Workers, Unemployment Benefits, and Demand to Sectors]
 
 **Other Relevant Parameters** (to be subjected to sensitivity):
 * "government_productivity_passtrought": determines how desired goverment wages grow based on average productivity of the economy
