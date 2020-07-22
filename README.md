@@ -13,8 +13,10 @@ Introduction of Gini Index for Analysis
 For more information on previous versions: <https://thttnn.github.io/MMM_CORE/>
 
 ### GOVERNMENT EXPENSES:
-**Control Parameter**: "switch_government_composition": 
+**Control Parameter**: "switch_government_composition"
+
 Determines the composition and priority of government expenses, and initial distribution
+
 * 0--> Government Wages(100%) [Only Public Workers]
 * 1--> Government Wages(100%) + Unemployment Benefits(0%) [Public Workers and Unemployment Benefits]
 *	2--> Government Wages(70%) + Unemployment Benefits(0%) + Government Consumption, Investment and Intermediate Demand(10% each) [Public Workers, Unemployment Benefits, and Demand to Sectors]
@@ -28,8 +30,10 @@ Determines the composition and priority of government expenses, and initial dist
   * distributed to lowest income class only
 
 ### TAXATION STRUCTURE:
-**Control Parameter**: "taxation_structure": 
+**Control Parameter**: "taxation_structure" 
+
 Determines which types of taxes will be used
+
 * 0--> Only Wages
 * 1--> Wages and Profits
 * 2--> Wages, Profits and Interest
