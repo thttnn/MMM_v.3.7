@@ -10,7 +10,11 @@ Introduction of Complex Governement
 
 Introduction of Gini Index for Analysis
 
-For more information on previous versions: <https://thttnn.github.io/MMM_CORE/>
+For more information on previous versions: 
+
+<https://thttnn.github.io/MMM_CORE/>
+
+<https://thttnn.github.io/MMM_v.3.6/>
 
 ### GOVERNMENT EXPENSES:
 **Control Parameter**: "switch_government_composition"
